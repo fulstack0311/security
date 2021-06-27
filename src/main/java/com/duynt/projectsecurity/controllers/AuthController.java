@@ -1,25 +1,20 @@
 package com.duynt.projectsecurity.controllers;
 
+import com.duynt.projectsecurity.config.security.CustomAuthenticationProvider;
 import com.duynt.projectsecurity.config.security.JWTUserDetailService;
 import com.duynt.projectsecurity.config.security.JwtTokenUtil;
-import com.duynt.projectsecurity.payload.request.JwtRequest;
-import com.duynt.projectsecurity.payload.response.JwtResponse;
-import com.duynt.projectsecurity.payload.response.ResponseMsg;
+import com.duynt.projectsecurity.entity.User;
+import com.duynt.projectsecurity.model.request.JwtRequest;
+import com.duynt.projectsecurity.model.request.SignupRequest;
+import com.duynt.projectsecurity.model.response.JwtResponse;
 import com.duynt.projectsecurity.service.UserDetailsImpl;
+import com.duynt.projectsecurity.service.serviceImpl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @RestController
@@ -28,10 +23,13 @@ import javax.validation.Valid;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private CustomAuthenticationProvider customAuthenticationProvider;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UserServiceImpl userService;
 
     @Autowired
     private JWTUserDetailService jwtUserDetailService;
@@ -41,18 +39,15 @@ public class AuthController {
 
     @PostMapping("/auth")
     public ResponseEntity<?> createAuthencationToken(@Valid @RequestBody JwtRequest user) {
-        UserDetailsImpl userDetails = null;
-        try {
-            userDetails = jwtUserDetailService.loadUserByUsername(user.getUsername());
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMsg("404", "User not found!"));
-        }
-        String pass = encoder.encode(user.getPassword());
-        if (!pass.equals(userDetails.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseMsg("401", "Password is invalid!"));
-        }
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        customAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        UserDetailsImpl userDetails = jwtUserDetailService.loadUserByUsername(user.getUsername());
         String token = jwtTokenUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> regist(@Valid @RequestBody SignupRequest user) {
+        User newUser = userService.save(new User(user.getUsername(), user.getEmail(), encoder.encode(user.getPassword())));
+        return ResponseEntity.ok(newUser);
     }
 }

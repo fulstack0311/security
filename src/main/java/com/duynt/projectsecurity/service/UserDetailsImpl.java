@@ -1,7 +1,7 @@
 package com.duynt.projectsecurity.service;
 
-import com.duynt.projectsecurity.model.Role;
-import com.duynt.projectsecurity.model.User;
+import com.duynt.projectsecurity.entity.Role;
+import com.duynt.projectsecurity.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

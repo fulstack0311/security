@@ -21,10 +21,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
-    private JWTUserDetailService jwtUserDetailService;
+    private JwtRequestFilter jwtRequestFilter;
 
     @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private CustomAuthenticationProvider authenticationProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -39,14 +39,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-       auth.userDetailsService(jwtUserDetailService).passwordEncoder(passwordEncoder());
+       auth.authenticationProvider(authenticationProvider);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/api/auth").permitAll()
+                .authorizeRequests().antMatchers("/api/auth", "/api/signin").permitAll()
                 // all other requests need to be authenticated
                 .anyRequest().authenticated()
                 .and()

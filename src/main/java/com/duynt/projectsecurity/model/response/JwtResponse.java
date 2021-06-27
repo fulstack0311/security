@@ -1,4 +1,4 @@
-package com.duynt.projectsecurity.payload.response;
+package com.duynt.projectsecurity.model.response;
 
 public class JwtResponse {
     private String jwt;

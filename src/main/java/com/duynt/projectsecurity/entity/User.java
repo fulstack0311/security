@@ -1,4 +1,4 @@
-package com.duynt.projectsecurity.model;
+package com.duynt.projectsecurity.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -42,6 +42,9 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public User() {
     }
 
     public Integer getId() {

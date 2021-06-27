@@ -1,4 +1,6 @@
-package com.duynt.projectsecurity.model;
+package com.duynt.projectsecurity.entity;
+
+import com.duynt.projectsecurity.model.ERole;
 
 import javax.persistence.*;
 
